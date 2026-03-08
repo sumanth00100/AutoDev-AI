@@ -26,14 +26,11 @@ Output format (raw JSON only, no markdown fences):
   ]
 }`;
 
-/**
- * Debugger Agent: analyses runtime errors and rewrites files to fix them.
- * Reasoning is enabled so the model traces the error before producing a fix.
- */
 export async function debuggerAgent(
-  prompt: string,
+  prompt:       string,
   currentFiles: GeneratedFile[],
-  errorOutput: string
+  errorOutput:  string,
+  githubToken:  string
 ): Promise<GeneratedFile[]> {
   const filesSummary = currentFiles
     .map((f) => {
@@ -45,13 +42,13 @@ export async function debuggerAgent(
     .join('\n\n');
 
   const { content } = await complete({
+    githubToken,
     temperature: 0.1,
-    max_tokens: 8192,
-    reasoning: true,
+    max_tokens:  8192,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       {
-        role: 'user',
+        role:    'user',
         content: [
           `Original project description:\n${prompt}`,
           `\nCurrent source files:\n${filesSummary}`,
@@ -70,7 +67,7 @@ export async function debuggerAgent(
     throw new Error('Debugger agent returned invalid JSON');
   }
 
-  const obj = parsed as Record<string, unknown>;
+  const obj   = parsed as Record<string, unknown>;
   const files = obj['files'];
   if (!Array.isArray(files)) throw new Error('Debugger agent: missing "files" array');
 

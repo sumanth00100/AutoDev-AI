@@ -4,9 +4,22 @@
 -- Enable UUID extension
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 
+-- users table: GitHub OAuth users with encrypted access tokens
+CREATE TABLE IF NOT EXISTS users (
+  id               UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  github_id        BIGINT NOT NULL UNIQUE,
+  github_username  TEXT NOT NULL,
+  encrypted_token  TEXT NOT NULL,
+  created_at       TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  updated_at       TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);
+
+CREATE INDEX IF NOT EXISTS idx_users_github_id ON users(github_id);
+
 -- requests table: tracks each AI project generation request
 CREATE TABLE IF NOT EXISTS requests (
   id          UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  user_id     UUID REFERENCES users(id) ON DELETE SET NULL,
   prompt      TEXT NOT NULL,
   status      VARCHAR(20) NOT NULL DEFAULT 'pending'
                 CHECK (status IN ('pending', 'running', 'completed', 'failed')),
@@ -63,4 +76,9 @@ $$ LANGUAGE plpgsql;
 DROP TRIGGER IF EXISTS requests_updated_at ON requests;
 CREATE TRIGGER requests_updated_at
   BEFORE UPDATE ON requests
+  FOR EACH ROW EXECUTE FUNCTION update_updated_at();
+
+DROP TRIGGER IF EXISTS users_updated_at ON users;
+CREATE TRIGGER users_updated_at
+  BEFORE UPDATE ON users
   FOR EACH ROW EXECUTE FUNCTION update_updated_at();

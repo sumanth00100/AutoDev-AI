@@ -8,7 +8,6 @@ import { GeneratedFile } from '../agents/generator';
 const execFileAsync = promisify(execFile);
 
 const TIMEOUT_MS = Number(process.env.SANDBOX_TIMEOUT_MS ?? 60_000);
-const SANDBOX_IMAGE = 'autodev-sandbox';
 
 export interface SandboxResult {
   exitCode: number;
@@ -35,18 +34,25 @@ export async function runInSandbox(
       fs.writeFileSync(dest, file.content, 'utf8');
     }
 
-    // 3. Ensure a Dockerfile exists; inject a default one if the LLM omitted it
+    // 3. Ensure a Dockerfile exists; inject a default one if the LLM omitted it.
+    //    Also replace `npm ci` with `npm install` — generated projects rarely
+    //    include a package-lock.json, which npm ci requires.
     const dockerfilePath = path.join(workDir, 'Dockerfile');
     if (!fs.existsSync(dockerfilePath)) {
       fs.writeFileSync(dockerfilePath, generateDefaultDockerfile(files), 'utf8');
+    } else {
+      const original = fs.readFileSync(dockerfilePath, 'utf8');
+      const patched  = original.replace(/npm ci(\b)/g, 'npm install$1');
+      if (patched !== original) fs.writeFileSync(dockerfilePath, patched, 'utf8');
     }
 
     const imageTag = `autodev-run-${requestId.slice(0, 8)}`;
 
-    // 4. Build Docker image
+    // 4. Build Docker image (force BuildKit to avoid legacy-builder deprecation failure)
     await execFileAsync('docker', ['build', '-t', imageTag, '.'], {
-      cwd: workDir,
+      cwd:     workDir,
       timeout: TIMEOUT_MS,
+      env:     { ...process.env, DOCKER_BUILDKIT: '0' },
     });
 
     // 5. Run container with resource limits

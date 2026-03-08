@@ -9,6 +9,7 @@ export type LogLevel      = 'info' | 'warn' | 'error' | 'debug';
 
 export interface Request {
   id: string;
+  user_id: string | null;
   prompt: string;
   status: RequestStatus;
   github_url: string | null;
@@ -43,10 +44,10 @@ export interface Log {
 // ─── Request Repository ─────────────────────────────────────────────────────
 
 export const RequestRepo = {
-  async create(prompt: string): Promise<Request> {
+  async create(prompt: string, userId?: string): Promise<Request> {
     const rows = await query<Request>(
-      `INSERT INTO requests (prompt) VALUES ($1) RETURNING *`,
-      [prompt]
+      `INSERT INTO requests (prompt, user_id) VALUES ($1, $2) RETURNING *`,
+      [prompt, userId ?? null]
     );
     return rows[0];
   },
@@ -107,6 +108,38 @@ export const FileRepo = {
 
   async findByRequestId(requestId: string): Promise<File[]> {
     return query<File>(`SELECT * FROM files WHERE request_id = $1 ORDER BY path`, [requestId]);
+  },
+};
+
+// ─── User Repository ─────────────────────────────────────────────────────────
+
+export interface User {
+  id:              string;
+  github_id:       number;
+  github_username: string;
+  encrypted_token: string;
+  created_at:      Date;
+  updated_at:      Date;
+}
+
+export const UserRepo = {
+  async upsert(githubId: number, githubUsername: string, encryptedToken: string): Promise<User> {
+    const rows = await query<User>(
+      `INSERT INTO users (github_id, github_username, encrypted_token)
+       VALUES ($1, $2, $3)
+       ON CONFLICT (github_id) DO UPDATE
+         SET github_username = EXCLUDED.github_username,
+             encrypted_token = EXCLUDED.encrypted_token,
+             updated_at      = NOW()
+       RETURNING *`,
+      [githubId, githubUsername, encryptedToken]
+    );
+    return rows[0];
+  },
+
+  async findById(id: string): Promise<User | null> {
+    const rows = await query<User>(`SELECT * FROM users WHERE id = $1`, [id]);
+    return rows[0] ?? null;
   },
 };
 

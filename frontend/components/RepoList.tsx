@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { useRepos, Repo } from '@/hooks/useRepos';
+import { authHeaders } from '@/lib/auth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
@@ -11,7 +12,7 @@ interface Props {
 }
 
 export function RepoList({ selectedRepo, onSelect }: Props) {
-  const { repos, loading, error } = useRepos();
+  const { repos, loading, error, refresh } = useRepos();
   const [search, setSearch]       = useState('');
   const [describing, setDescribing] = useState<string | null>(null); // fullName being described
   const [descriptions, setDescriptions] = useState<Record<string, string>>({});
@@ -30,7 +31,7 @@ export function RepoList({ selectedRepo, onSelect }: Props) {
     if (!descriptions[key] && describing !== key) {
       setDescribing(key);
       try {
-        const res = await fetch(`${API_URL}/repos/${repo.owner}/${repo.name}/describe`);
+        const res = await fetch(`${API_URL}/repos/${repo.owner}/${repo.name}/describe`, { headers: authHeaders() });
         const data = await res.json();
         setDescriptions((prev) => ({ ...prev, [key]: data.description }));
       } catch {
@@ -62,14 +63,24 @@ export function RepoList({ selectedRepo, onSelect }: Props) {
 
   return (
     <div className="flex flex-col gap-3">
-      {/* Search */}
-      <input
-        type="text"
-        placeholder="Search repositories…"
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        className="w-full bg-[var(--bg-main)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-white placeholder-[var(--text-muted)] outline-none focus:border-brand transition-colors"
-      />
+      {/* Search + Refresh */}
+      <div className="flex gap-2">
+        <input
+          type="text"
+          placeholder="Search repositories…"
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="flex-1 bg-[var(--bg-main)] border border-[var(--border)] rounded-lg px-3 py-2 text-sm text-white placeholder-[var(--text-muted)] outline-none focus:border-brand transition-colors"
+        />
+        <button
+          onClick={refresh}
+          disabled={loading}
+          title="Refresh repositories"
+          className="px-3 py-2 rounded-lg border border-[var(--border)] bg-[var(--bg-main)] text-[var(--text-muted)] hover:text-white hover:border-brand/40 transition-colors disabled:opacity-40"
+        >
+          <span className={loading ? 'inline-block animate-spin' : ''}>↻</span>
+        </button>
+      </div>
 
       {/* Selected badge */}
       {selectedRepo && (

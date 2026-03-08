@@ -16,16 +16,20 @@ export interface GenerateJobData {
   requestId:   string;
   prompt:      string;
   targetRepo?: { owner: string; repo: string };
+  userId:      string;
+  model?:      string;
 }
 
 export async function enqueueGenerate(
-  requestId:   string,
-  prompt:      string,
-  targetRepo?: { owner: string; repo: string }
+  requestId:  string,
+  prompt:     string,
+  targetRepo: { owner: string; repo: string } | undefined,
+  userId:     string,
+  model?:     string
 ): Promise<void> {
   await getQueue().add(
     'generate',
-    { requestId, prompt, targetRepo } satisfies GenerateJobData,
+    { requestId, prompt, targetRepo, userId, model } satisfies GenerateJobData,
     {
       attempts:         1,
       removeOnComplete: 100,

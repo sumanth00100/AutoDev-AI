@@ -1,6 +1,7 @@
 import 'dotenv/config';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
+import jwt  from '@fastify/jwt';
 import websocket from '@fastify/websocket';
 
 import { generateRoute }  from './routes/generate';
@@ -8,6 +9,7 @@ import { requestRoute }   from './routes/request';
 import { logsRoute }      from './routes/logs';
 import { tasksRoute }     from './routes/tasks';
 import { reposRoute }     from './routes/repos';
+import { authRoute }      from './routes/auth';
 import { wsLogStream }    from './websocket/logStream';
 import { closePool }      from '../database/db';
 import { startWorker }    from '../queue/worker';
@@ -26,17 +28,20 @@ async function bootstrap() {
 
   // ── Plugins ────────────────────────────────────────────────────────────────
   await app.register(cors, {
-    origin: process.env.FRONTEND_URL ?? 'http://localhost:3000',
-    methods: ['GET', 'POST', 'OPTIONS'],
+    origin:         process.env.FRONTEND_URL ?? 'http://localhost:3000',
+    methods:        ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
   });
+  await app.register(jwt, { secret: process.env.JWT_SECRET! });
   await app.register(websocket);
 
   // ── REST Routes ────────────────────────────────────────────────────────────
+  await app.register(authRoute,     { prefix: '/api' });
   await app.register(generateRoute, { prefix: '/api' });
   await app.register(requestRoute,  { prefix: '/api' });
   await app.register(logsRoute,     { prefix: '/api' });
   await app.register(tasksRoute,    { prefix: '/api' });
-  await app.register(reposRoute,     { prefix: '/api' });
+  await app.register(reposRoute,    { prefix: '/api' });
 
   // ── WebSocket ──────────────────────────────────────────────────────────────
   await app.register(wsLogStream,   { prefix: '/ws' });

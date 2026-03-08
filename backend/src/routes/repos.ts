@@ -1,16 +1,19 @@
 import { FastifyInstance } from 'fastify';
 import { Octokit } from '@octokit/rest';
 import { complete } from '../../agents/openrouter';
-
-const octokit = new Octokit({ auth: process.env.GITHUB_TOKEN });
+import { UserRepo } from '../../database/repositories';
+import { decryptToken } from '../../services/crypto';
+import { authenticate } from '../middleware/authenticate';
 
 export async function reposRoute(app: FastifyInstance) {
   // ── List all repos ─────────────────────────────────────────────────────────
-  app.get('/repos', async (_req, reply) => {
+  app.get('/repos', { preHandler: [authenticate] }, async (req, reply) => {
+    const user = await UserRepo.findById(req.user.userId);
+    if (!user) return reply.code(401).send({ error: 'User not found' });
+
+    const octokit = new Octokit({ auth: decryptToken(user.encrypted_token) });
     const { data } = await octokit.repos.listForAuthenticatedUser({
-      sort: 'updated',
-      per_page: 100,
-      affiliation: 'owner',
+      sort: 'updated', per_page: 100, affiliation: 'owner',
     });
     reply.send(
       data.map((r) => ({
@@ -31,13 +34,17 @@ export async function reposRoute(app: FastifyInstance) {
   // ── AI description of a specific repo ──────────────────────────────────────
   app.get<{ Params: { owner: string; repo: string } }>(
     '/repos/:owner/:repo/describe',
+    { preHandler: [authenticate] },
     async (req, reply) => {
       const { owner, repo } = req.params;
 
-      // Fetch repo metadata
+      const user = await UserRepo.findById(req.user.userId);
+      if (!user) return reply.code(401).send({ error: 'User not found' });
+
+      const octokit = new Octokit({ auth: decryptToken(user.encrypted_token) });
+
       const { data: meta } = await octokit.repos.get({ owner, repo });
 
-      // Try README first, fall back to file listing
       let content = '';
       try {
         const { data: rm } = await octokit.repos.getReadme({ owner, repo });
@@ -61,7 +68,9 @@ Stars: ${meta.stargazers_count}
 README / file listing:
 ${content}`;
 
+      const githubToken = decryptToken(user.encrypted_token);
       const result = await complete({
+        githubToken,
         messages: [
           {
             role: 'system',
@@ -72,7 +81,6 @@ ${content}`;
         ],
         temperature: 0.3,
         max_tokens:  200,
-        reasoning:   false,
       });
 
       reply.send({ description: result.content.trim() });
