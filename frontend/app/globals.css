@@ -1,0 +1,41 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+:root {
+  --bg-primary:   #0f0f11;
+  --bg-secondary: #1a1a1f;
+  --bg-card:      #1e1e26;
+  --border:       #2e2e3a;
+  --text-primary: #e8e8f0;
+  --text-muted:   #6b6b80;
+  --brand:        #6366f1;
+}
+
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
+}
+
+html,
+body {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: 'JetBrains Mono', ui-monospace, monospace;
+  height: 100%;
+}
+
+/* Smooth scrollbar */
+::-webkit-scrollbar       { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #44445a; }
+
+/* Log console line colouring */
+.log-info  { color: #a0f0a0; }
+.log-warn  { color: #f0c060; }
+.log-error { color: #f07070; }
+.log-debug { color: #8080c0; }

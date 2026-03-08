@@ -1,0 +1,31 @@
+# ── Stage 1: build ──────────────────────────────────────────────────────────
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Install dependencies first (cache layer)
+COPY backend/package*.json ./
+RUN npm ci
+
+# Copy source and build
+COPY backend/ .
+RUN npm run build
+
+# ── Stage 2: production image ─────────────────────────────────────────────────
+FROM node:20-alpine AS runner
+
+WORKDIR /app
+
+# Install Docker CLI (needed by dockerRunner to spawn sandbox containers)
+RUN apk add --no-cache docker-cli
+
+ENV NODE_ENV=production
+
+COPY --from=builder /app/package*.json ./
+RUN npm ci --omit=dev
+
+COPY --from=builder /app/dist ./dist
+
+EXPOSE 3001
+
+CMD ["node", "dist/src/index.js"]

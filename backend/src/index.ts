@@ -1,0 +1,68 @@
+import 'dotenv/config';
+import Fastify from 'fastify';
+import cors from '@fastify/cors';
+import websocket from '@fastify/websocket';
+
+import { generateRoute }  from './routes/generate';
+import { requestRoute }   from './routes/request';
+import { logsRoute }      from './routes/logs';
+import { tasksRoute }     from './routes/tasks';
+import { reposRoute }     from './routes/repos';
+import { wsLogStream }    from './websocket/logStream';
+import { closePool }      from '../database/db';
+import { startWorker }    from '../queue/worker';
+
+const PORT = Number(process.env.PORT ?? 3001);
+
+async function bootstrap() {
+  const app = Fastify({
+    logger: {
+      transport:
+        process.env.NODE_ENV !== 'production'
+          ? { target: 'pino-pretty', options: { colorize: true } }
+          : undefined,
+    },
+  });
+
+  // ── Plugins ────────────────────────────────────────────────────────────────
+  await app.register(cors, {
+    origin: process.env.FRONTEND_URL ?? 'http://localhost:3000',
+    methods: ['GET', 'POST', 'OPTIONS'],
+  });
+  await app.register(websocket);
+
+  // ── REST Routes ────────────────────────────────────────────────────────────
+  await app.register(generateRoute, { prefix: '/api' });
+  await app.register(requestRoute,  { prefix: '/api' });
+  await app.register(logsRoute,     { prefix: '/api' });
+  await app.register(tasksRoute,    { prefix: '/api' });
+  await app.register(reposRoute,     { prefix: '/api' });
+
+  // ── WebSocket ──────────────────────────────────────────────────────────────
+  await app.register(wsLogStream,   { prefix: '/ws' });
+
+  // ── Health ─────────────────────────────────────────────────────────────────
+  app.get('/health', async () => ({ status: 'ok', ts: new Date().toISOString() }));
+
+  // ── Background worker ──────────────────────────────────────────────────────
+  startWorker();
+
+  // ── Start ──────────────────────────────────────────────────────────────────
+  await app.listen({ port: PORT, host: '0.0.0.0' });
+  app.log.info(`AutoDev AI backend running on http://0.0.0.0:${PORT}`);
+
+  // ── Shutdown ───────────────────────────────────────────────────────────────
+  const shutdown = async () => {
+    app.log.info('Shutting down…');
+    await app.close();
+    await closePool();
+    process.exit(0);
+  };
+  process.on('SIGTERM', shutdown);
+  process.on('SIGINT',  shutdown);
+}
+
+bootstrap().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});
