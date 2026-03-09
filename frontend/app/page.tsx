@@ -6,6 +6,7 @@ import { StatusBadge }        from '@/components/StatusBadge';
 import { LogConsole }         from '@/components/LogConsole';
 import { TaskList }           from '@/components/TaskList';
 import { RepoList }           from '@/components/RepoList';
+import { ModelSelector }      from '@/components/ModelSelector';
 import { Tilt3D }             from '@/components/Tilt3D';
 import { useAutoEngineerJob } from '@/hooks/useAutoEngineerJob';
 import { useAuth }            from '@/hooks/useAuth';
@@ -216,7 +217,7 @@ export default function HomePage() {
           <section className="glass-card rounded-2xl p-5 flex flex-col gap-4">
             <div className="flex items-center gap-2.5">
               <div className="accent-line" />
-              <h2 className="label">What do you want to build?</h2>
+              <h2 className="font-display text-[15px] font-bold text-gradient leading-none">What do you want to build?</h2>
             </div>
 
             <PromptInput value={prompt} onChange={setPrompt} onSubmit={handleSubmit} disabled={isLoading} />
@@ -231,24 +232,7 @@ export default function HomePage() {
             )}
 
             {/* Model selector */}
-            <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-white/[0.03] border border-white/[0.07] hover:border-[var(--border-hi)] transition-colors group">
-              <svg className="w-3.5 h-3.5 text-[var(--brand-light)] shrink-0" fill="none" stroke="currentColor" strokeWidth={2} viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M9.813 15.904 9 18.75l-.813-2.846a4.5 4.5 0 0 0-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 0 0 3.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 0 0 3.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 0 0-3.09 3.09Z" />
-              </svg>
-              <span className="text-xs text-[var(--text-2)] shrink-0 font-medium">Model</span>
-              <select
-                value={model}
-                onChange={e => setModel(e.target.value)}
-                disabled={isLoading}
-                className="flex-1 bg-transparent text-xs text-white outline-none disabled:opacity-40 cursor-pointer"
-              >
-                {MODELS.map(m => (
-                  <option key={m.id} value={m.id} className="bg-[#0b0b23]">
-                    {m.label} — {m.note}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <ModelSelector models={MODELS} value={model} onChange={setModel} disabled={isLoading} />
 
             {/* Submit row */}
             <div className="flex items-center justify-between gap-3">
