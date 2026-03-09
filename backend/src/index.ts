@@ -69,6 +69,10 @@ async function bootstrap() {
   process.on('SIGINT',  shutdown);
 }
 
+process.on('unhandledRejection', (reason) => {
+  console.error('[Process] unhandledRejection:', reason);
+});
+
 bootstrap().catch((err) => {
   console.error(err);
   process.exit(1);
