@@ -1,6 +1,6 @@
-# AutoDev AI – Autonomous AI Software Engineer
+# AutoEngineer – Autonomous AI Software Engineer
 
-AutoDev AI takes a plain-English description of a software project and autonomously plans, generates, debugs, sandboxes, and ships it to GitHub — all without human intervention.
+AutoEngineer takes a plain-English description of a software project and autonomously plans, generates, debugs, sandboxes, and ships it to GitHub — all without human intervention.
 
 ---
 
@@ -44,7 +44,7 @@ AutoDev AI takes a plain-English description of a software project and autonomou
 ## Project Structure
 
 ```
-autodev-ai/
+autoengineer/
 ├── frontend/                     # Next.js 14 App Router UI
 │   ├── app/
 │   │   ├── page.tsx              # Dashboard page
@@ -56,7 +56,7 @@ autodev-ai/
 │   │   ├── LogConsole.tsx        # Live WebSocket log terminal
 │   │   └── TaskList.tsx          # Polled planned-task list
 │   ├── hooks/
-│   │   └── useAutoDevJob.ts      # Job state + polling hook
+│   │   └── useAutoEngineerJob.ts      # Job state + polling hook
 │   └── package.json
 │
 ├── backend/
@@ -135,8 +135,8 @@ autodev-ai/
 ### 1. Clone & install
 
 ```bash
-git clone https://github.com/your-org/autodev-ai.git
-cd autodev-ai
+git clone https://github.com/your-org/autoengineer.git
+cd autoengineer
 
 # Backend deps
 cd backend && npm install && cd ..
@@ -230,7 +230,7 @@ Poll the status of a generation request.
   "id": "uuid",
   "prompt": "...",
   "status": "completed",
-  "github_url": "https://github.com/user/autodev-xxxx",
+  "github_url": "https://github.com/user/autoengineer-xxxx",
   "created_at": "...",
   "updated_at": "..."
 }
@@ -319,7 +319,7 @@ vercel deploy
 ### Backend → Docker (VPS / Railway / Fly.io)
 
 ```bash
-docker build -f docker/Dockerfile.backend -t autodev-backend .
+docker build -f docker/Dockerfile.backend -t autoengineer-backend .
 docker run \
   -e DB_URL="..." \
   -e OPENAI_KEY="..." \
@@ -327,7 +327,7 @@ docker run \
   -e REDIS_URL="..." \
   -v /var/run/docker.sock:/var/run/docker.sock \
   -p 3001:3001 \
-  autodev-backend
+  autoengineer-backend
 ```
 
 > **Important:** The Docker socket must be mounted so the backend can spawn sandbox containers.

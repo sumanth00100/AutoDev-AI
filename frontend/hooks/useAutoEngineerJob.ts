@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useCallback, useRef, useEffect } from 'react';
+import { authHeaders } from '@/lib/auth';
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL!;
 
@@ -12,8 +13,8 @@ export interface Job {
   githubUrl: string | null;
 }
 
-export function useAutoDevJob() {
-  const [job, setJob]           = useState<Job | null>(null);
+export function useAutoEngineerJob() {
+  const [job, setJob]             = useState<Job | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -29,7 +30,7 @@ export function useAutoDevJob() {
       stopPolling();
       pollRef.current = setInterval(async () => {
         try {
-          const res = await fetch(`${API_URL}/request/${requestId}`);
+          const res = await fetch(`${API_URL}/request/${requestId}`, { headers: authHeaders() });
           if (!res.ok) return;
           const data = await res.json();
           setJob({ requestId, status: data.status, githubUrl: data.github_url ?? null });
@@ -44,7 +45,7 @@ export function useAutoDevJob() {
   );
 
   const submit = useCallback(
-    async (prompt: string, targetRepo?: { owner: string; repo: string }) => {
+    async (prompt: string, targetRepo?: { owner: string; repo: string }, model?: string) => {
       setIsLoading(true);
       setJob(null);
       stopPolling();
@@ -52,8 +53,8 @@ export function useAutoDevJob() {
       try {
         const res = await fetch(`${API_URL}/generate-project`, {
           method:  'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body:    JSON.stringify({ prompt, ...(targetRepo ? { targetRepo } : {}) }),
+          headers: { 'Content-Type': 'application/json', ...authHeaders() },
+          body:    JSON.stringify({ prompt, ...(targetRepo ? { targetRepo } : {}), ...(model ? { model } : {}) }),
         });
 
         if (!res.ok) throw new Error(await res.text());
@@ -62,7 +63,7 @@ export function useAutoDevJob() {
         setJob(newJob);
         startPolling(data.requestId);
       } catch (err) {
-        console.error('[useAutoDevJob] submit error', err);
+        console.error('[useAutoEngineerJob] submit error', err);
         setIsLoading(false);
       }
     },

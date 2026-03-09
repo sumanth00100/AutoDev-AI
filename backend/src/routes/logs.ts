@@ -1,20 +1,11 @@
 import { FastifyInstance, FastifyRequest } from 'fastify';
-import { LogRepo } from '../../database/repositories';
+import { LogStore } from '../../services/redisStore';
 
 export async function logsRoute(app: FastifyInstance) {
   app.get<{ Params: { id: string } }>(
     '/logs/:id',
-    {
-      schema: {
-        params: {
-          type: 'object',
-          required: ['id'],
-          properties: { id: { type: 'string', format: 'uuid' } },
-        },
-      },
-    },
     async (req: FastifyRequest<{ Params: { id: string } }>) => {
-      return LogRepo.findByRequestId(req.params.id);
+      return LogStore.findByRequestId(req.params.id);
     }
   );
 }

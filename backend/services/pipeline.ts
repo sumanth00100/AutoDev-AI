@@ -1,26 +1,26 @@
-import { RequestRepo, TaskRepo, FileRepo, LogRepo } from '../database/repositories';
+import { RequestStore, TaskStore, LogStore } from './redisStore';
 import { plannerAgent }   from '../agents/planner';
 import { generatorAgent } from '../agents/generator';
-import { debuggerAgent }  from '../agents/debugger';
-import { runInSandbox }   from '../sandbox/dockerRunner';
 import { pushToGitHub }   from './github';
 import { publishLog }     from './logPublisher';
 
-const MAX_DEBUG_RETRIES = Number(process.env.SANDBOX_MAX_RETRIES ?? 3);
-
 export async function runPipeline(
-  requestId:   string,
-  prompt:      string,
-  targetRepo?: { owner: string; repo: string }
+  requestId:    string,
+  prompt:       string,
+  targetRepo:   { owner: string; repo: string } | undefined,
+  githubToken?: string,
+  model?:       string
 ): Promise<void> {
   const log = async (message: string, level: 'info' | 'warn' | 'error' | 'debug' = 'info') => {
-    await LogRepo.append(requestId, message, level);
+    await LogStore.append(requestId, message, level);
     await publishLog(requestId, { message, level, ts: new Date().toISOString() });
     console.log(`[Pipeline][${requestId}] ${message}`);
   };
 
+  let tasks: { id: string }[] = [];
+
   try {
-    await RequestRepo.updateStatus(requestId, 'running');
+    await RequestStore.updateStatus(requestId, 'running');
     if (targetRepo) {
       await log(`Using existing repo: ${targetRepo.owner}/${targetRepo.repo}`);
     }
@@ -28,69 +28,67 @@ export async function runPipeline(
 
     // ── 1. Plan ──────────────────────────────────────────────────────────────
     await log('Planner agent: breaking down project into tasks…');
-    const taskDescriptions = await plannerAgent(prompt);
+    const taskDescriptions = await plannerAgent(prompt, githubToken!);
     await log(`Planner produced ${taskDescriptions.length} tasks`);
-    await TaskRepo.bulkCreate(requestId, taskDescriptions);
+    tasks = await TaskStore.bulkCreate(requestId, taskDescriptions);
+
+    const n        = tasks.length;
+    // Distribute tasks: first task = planning, last task = push, rest = generation
+    const genStart = Math.min(1, n - 1);
+    const genEnd   = n > 1 ? n - 1 : n;
+
+    // Planning phase done — mark first task completed
+    if (n > 0) {
+      await TaskStore.updateStatus(tasks[0].id, 'running');
+      await TaskStore.updateStatus(tasks[0].id, 'completed');
+    }
 
     // ── 2. Generate Code ─────────────────────────────────────────────────────
+    // Mark generation tasks as running
+    for (let i = genStart; i < genEnd; i++) {
+      await TaskStore.updateStatus(tasks[i].id, 'running');
+    }
+
     await log('Generator agent: producing project files…');
-    let files = await generatorAgent(prompt, taskDescriptions);
-    await FileRepo.bulkUpsert(requestId, files);
+    const files = await generatorAgent(prompt, taskDescriptions, githubToken!, model);
     await log(`Generator produced ${files.length} files`);
 
-    // ── 3. Execute in Sandbox (with debug retry loop) ─────────────────────────
-    let attempt = 0;
-    let success = false;
-
-    while (attempt <= MAX_DEBUG_RETRIES) {
-      attempt++;
-      await log(`Sandbox run #${attempt}…`);
-
-      const { exitCode, stdout, stderr } = await runInSandbox(requestId, files);
-
-      if (stdout) await log(`[sandbox stdout]\n${stdout}`, 'debug');
-      if (stderr) await log(`[sandbox stderr]\n${stderr}`, 'warn');
-
-      if (exitCode === 0) {
-        await log('Sandbox execution succeeded');
-        success = true;
-        break;
-      }
-
-      await log(`Sandbox exited with code ${exitCode}`, 'error');
-
-      if (attempt > MAX_DEBUG_RETRIES) {
-        await log('Max debug retries reached – marking request as failed', 'error');
-        break;
-      }
-
-      await log(`Debugger agent: analysing errors (attempt ${attempt}/${MAX_DEBUG_RETRIES})…`);
-      const errorContext = `STDOUT:\n${stdout}\n\nSTDERR:\n${stderr}`;
-      files = await debuggerAgent(prompt, files, errorContext);
-      await FileRepo.bulkUpsert(requestId, files);
-      await log(`Debugger agent applied fixes – retrying sandbox…`);
+    // Generation done — mark generation tasks completed, mark push task running
+    for (let i = genStart; i < genEnd; i++) {
+      await TaskStore.updateStatus(tasks[i].id, 'completed');
+    }
+    if (n > 1) {
+      await TaskStore.updateStatus(tasks[n - 1].id, 'running');
     }
 
-    if (!success) {
-      await RequestRepo.updateStatus(requestId, 'failed');
-      await log('Pipeline finished with status: failed', 'error');
-      return;
-    }
-
-    // ── 5. Push to GitHub ────────────────────────────────────────────────────
+    // ── 3. Push to GitHub ────────────────────────────────────────────────────
     await log(targetRepo
       ? `Committing to existing repo ${targetRepo.owner}/${targetRepo.repo}…`
       : 'Pushing project to new GitHub repo…'
     );
-    const repoUrl = await pushToGitHub(requestId, files, targetRepo);
+    const repoUrl = await pushToGitHub(requestId, prompt, files, targetRepo, githubToken);
     await log(`Project pushed to ${repoUrl}`);
 
-    await RequestRepo.updateStatus(requestId, 'completed', repoUrl);
+    // Push done — mark last task completed
+    if (n > 1) {
+      await TaskStore.updateStatus(tasks[n - 1].id, 'completed');
+    }
+
+    await RequestStore.updateStatus(requestId, 'completed', repoUrl);
     await log('Pipeline finished with status: completed');
 
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : String(err);
     await log(`Unexpected pipeline error: ${message}`, 'error');
-    await RequestRepo.updateStatus(requestId, 'failed');
+    await RequestStore.updateStatus(requestId, 'failed');
+
+    // Mark any non-completed tasks as failed
+    for (const task of tasks) {
+      const current = await TaskStore.findByRequestId(requestId);
+      const t = current.find(x => x.id === task.id);
+      if (t && t.status !== 'completed') {
+        await TaskStore.updateStatus(task.id, 'failed');
+      }
+    }
   }
 }

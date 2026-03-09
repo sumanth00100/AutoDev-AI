@@ -1,4 +1,5 @@
 import { FastifyInstance } from 'fastify';
+import WebSocket from 'ws';
 import { getRedis } from '../../queue/redis';
 
 /**
@@ -12,7 +13,7 @@ export async function wsLogStream(app: FastifyInstance) {
   app.get<{ Params: { id: string } }>(
     '/logs/:id',
     { websocket: true },
-    async (connection, req) => {
+    async (socket: WebSocket, req) => {
       const { id } = req.params as { id: string };
       const channel = `logs:${id}`;
 
@@ -20,21 +21,19 @@ export async function wsLogStream(app: FastifyInstance) {
       const sub = getRedis().duplicate();
       await sub.subscribe(channel);
 
+      const cleanup = async () => {
+        await sub.unsubscribe(channel);
+        sub.disconnect();
+      };
+
       sub.on('message', (_chan: string, message: string) => {
-        if (connection.socket.readyState === 1 /* OPEN */) {
-          connection.socket.send(message);
+        if (socket.readyState === WebSocket.OPEN) {
+          socket.send(message);
         }
       });
 
-      connection.socket.on('close', async () => {
-        await sub.unsubscribe(channel);
-        sub.disconnect();
-      });
-
-      connection.socket.on('error', async () => {
-        await sub.unsubscribe(channel);
-        sub.disconnect();
-      });
+      socket.on('close', cleanup);
+      socket.on('error', cleanup);
     }
   );
 }
