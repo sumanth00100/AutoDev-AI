@@ -32,5 +32,9 @@ export function startWorker(): Worker<GenerateJobData> {
     console.error(`[Worker] Job ${job?.id} failed:`, err)
   );
 
+  worker.on('error', (err) =>
+    console.error('[Worker] connection error (Redis may be unavailable):', err.message)
+  );
+
   return worker;
 }
