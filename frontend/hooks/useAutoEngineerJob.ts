@@ -13,7 +13,7 @@ export interface Job {
   githubUrl: string | null;
 }
 
-export function useAutoDevJob() {
+export function useAutoEngineerJob() {
   const [job, setJob]             = useState<Job | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -63,7 +63,7 @@ export function useAutoDevJob() {
         setJob(newJob);
         startPolling(data.requestId);
       } catch (err) {
-        console.error('[useAutoDevJob] submit error', err);
+        console.error('[useAutoEngineerJob] submit error', err);
         setIsLoading(false);
       }
     },

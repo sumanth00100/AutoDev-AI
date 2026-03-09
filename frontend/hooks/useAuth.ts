@@ -19,26 +19,26 @@ export function useAuth() {
     const hash = window.location.hash;
     if (hash.startsWith('#token=')) {
       const token = decodeURIComponent(hash.slice('#token='.length));
-      sessionStorage.setItem('autodev_token', token);
+      sessionStorage.setItem('autoengineer_token', token);
       window.history.replaceState(null, '', window.location.pathname);
     }
 
-    const token = sessionStorage.getItem('autodev_token');
+    const token = sessionStorage.getItem('autoengineer_token');
     if (!token) { setLoading(false); return; }
 
     fetch(`${API_URL}/auth/me`, { headers: authHeaders() })
       .then((r) => (r.ok ? r.json() : null))
       .then((data: AuthUser | null) => {
         if (data) setUser(data);
-        else sessionStorage.removeItem('autodev_token');
+        else sessionStorage.removeItem('autoengineer_token');
       })
-      .catch(() => sessionStorage.removeItem('autodev_token'))
+      .catch(() => sessionStorage.removeItem('autoengineer_token'))
       .finally(() => setLoading(false));
   }, []);
 
   const login  = () => { window.location.href = `${API_URL}/auth/github`; };
   const logout = () => {
-    sessionStorage.removeItem('autodev_token');
+    sessionStorage.removeItem('autoengineer_token');
     setUser(null);
   };
 

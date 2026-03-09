@@ -6,7 +6,7 @@ import { StatusBadge }   from '@/components/StatusBadge';
 import { LogConsole }    from '@/components/LogConsole';
 import { TaskList }      from '@/components/TaskList';
 import { RepoList }      from '@/components/RepoList';
-import { useAutoDevJob } from '@/hooks/useAutoDevJob';
+import { useAutoEngineerJob } from '@/hooks/useAutoEngineerJob';
 import { useAuth }       from '@/hooks/useAuth';
 
 const MODELS = [
@@ -41,7 +41,7 @@ export default function HomePage() {
   const [prompt, setPrompt]             = useState('');
   const [selectedRepo, setSelectedRepo] = useState<{ owner: string; repo: string } | null>(null);
   const [model, setModel]               = useState(MODELS[0].id);
-  const { job, submit, isLoading }      = useAutoDevJob();
+  const { job, submit, isLoading }      = useAutoEngineerJob();
   const { user, loading, login, logout } = useAuth();
 
   const handleSubmit = () => {
@@ -66,11 +66,11 @@ export default function HomePage() {
             A
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-white tracking-tight">AutoDev AI</h1>
+            <h1 className="text-2xl font-bold text-white tracking-tight">AutoEngineer</h1>
             <p className="text-sm text-[var(--text-muted)] mt-1">Autonomous AI Software Engineer</p>
           </div>
           <p className="text-sm text-[var(--text-muted)] leading-relaxed">
-            Describe a project and AutoDev AI will plan, generate, debug, and push it to your GitHub — automatically.
+            Describe a project and AutoEngineer will plan, generate, debug, and push it to your GitHub — automatically.
           </p>
           <button
             onClick={login}
@@ -98,7 +98,7 @@ export default function HomePage() {
           A
         </div>
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-white tracking-tight">AutoDev AI</h1>
+          <h1 className="text-xl font-bold text-white tracking-tight">AutoEngineer</h1>
           <p className="text-xs text-[var(--text-muted)]">Autonomous AI Software Engineer</p>
         </div>
         <div className="flex items-center gap-3">

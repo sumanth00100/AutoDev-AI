@@ -1,7 +1,7 @@
 import { Queue } from 'bullmq';
 import { getBullMQConnection } from './redis';
 
-export const QUEUE_NAME = 'autodev-generate';
+export const QUEUE_NAME = 'autoengineer-generate';
 
 let queue: Queue | null = null;
 

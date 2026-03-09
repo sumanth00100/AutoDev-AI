@@ -1,4 +1,4 @@
-import { complete } from './openrouter';
+import { complete } from './githubModels';
 
 const SYSTEM_PROMPT = `You are an expert software architect and project planner.
 Given a user's request, decompose it into a precise, ordered list of development tasks.

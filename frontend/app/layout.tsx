@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'AutoDev AI – Autonomous AI Software Engineer',
+  title: 'AutoEngineer – Autonomous AI Software Engineer',
   description: 'Describe a project, let AI plan, generate, debug, and ship it.',
 };
 

@@ -1,7 +1,7 @@
 'use client';
 
 import clsx from 'clsx';
-import type { JobStatus } from '@/hooks/useAutoDevJob';
+import type { JobStatus } from '@/hooks/useAutoEngineerJob';
 
 const CONFIG: Record<JobStatus, { label: string; dot: string; ring: string }> = {
   pending:   { label: 'Pending',   dot: 'bg-yellow-400', ring: 'ring-yellow-400/30' },

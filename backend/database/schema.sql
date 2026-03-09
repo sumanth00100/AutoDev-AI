@@ -1,4 +1,4 @@
--- AutoDev AI Database Schema
+-- AutoEngineer Database Schema
 -- Run this against your Supabase PostgreSQL instance
 
 -- Enable UUID extension

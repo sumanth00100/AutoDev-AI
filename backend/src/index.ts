@@ -54,7 +54,7 @@ async function bootstrap() {
 
   // ── Start ──────────────────────────────────────────────────────────────────
   await app.listen({ port: PORT, host: '0.0.0.0' });
-  app.log.info(`AutoDev AI backend running on http://0.0.0.0:${PORT}`);
+  app.log.info(`AutoEngineer backend running on http://0.0.0.0:${PORT}`);
 
   // ── Shutdown ───────────────────────────────────────────────────────────────
   const shutdown = async () => {

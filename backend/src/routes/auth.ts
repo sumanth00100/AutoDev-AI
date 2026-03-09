@@ -44,7 +44,7 @@ export async function authRoute(app: FastifyInstance) {
 
       // Fetch GitHub user profile
       const userRes = await fetch('https://api.github.com/user', {
-        headers: { Authorization: `Bearer ${tokenData.access_token}`, 'User-Agent': 'AutoDev-AI' },
+        headers: { Authorization: `Bearer ${tokenData.access_token}`, 'User-Agent': 'AutoEngineer-AI' },
       });
       const githubUser = await userRes.json() as { id: number; login: string };
 

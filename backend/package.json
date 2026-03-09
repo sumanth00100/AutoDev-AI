@@ -1,7 +1,7 @@
 {
-  "name": "autodev-ai-backend",
+  "name": "autoengineer-backend",
   "version": "1.0.0",
-  "description": "AutoDev AI – Autonomous AI Software Engineer Backend",
+  "description": "AutoEngineer – Autonomous AI Software Engineer Backend",
   "main": "dist/src/index.js",
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/index.ts",
