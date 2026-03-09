@@ -1,14 +1,14 @@
 import { FastifyInstance } from "fastify";
 import { Octokit } from "@octokit/rest";
 import { complete } from "../../agents/githubModels";
-import { UserRepo } from "../../database/repositories";
+import { UserStore } from "../../services/redisStore";
 import { decryptToken } from "../../services/crypto";
 import { authenticate } from "../middleware/authenticate";
 
 export async function reposRoute(app: FastifyInstance) {
   // ── List all repos ─────────────────────────────────────────────────────────
   app.get("/repos", { preHandler: [authenticate] }, async (req, reply) => {
-    const user = await UserRepo.findById(req.user.userId);
+    const user = await UserStore.findById(req.user.userId);
     if (!user) return reply.code(401).send({ error: "User not found" });
 
     const octokit = new Octokit({ auth: decryptToken(user.encrypted_token) });
@@ -40,7 +40,7 @@ export async function reposRoute(app: FastifyInstance) {
     async (req, reply) => {
       const { owner, repo } = req.params;
 
-      const user = await UserRepo.findById(req.user.userId);
+      const user = await UserStore.findById(req.user.userId);
       if (!user) return reply.code(401).send({ error: "User not found" });
 
       const octokit = new Octokit({ auth: decryptToken(user.encrypted_token) });
@@ -87,7 +87,6 @@ ${content}`;
           },
           { role: "user", content: context },
         ],
-        temperature: 0.3,
         max_completion_tokens: 200,
       });
 

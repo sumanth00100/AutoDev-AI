@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { UserRepo } from '../../database/repositories';
+import { UserStore } from '../../services/redisStore';
 import { encryptToken } from '../../services/crypto';
 
 // Augment @fastify/jwt types so req.user is typed everywhere
@@ -50,7 +50,7 @@ export async function authRoute(app: FastifyInstance) {
 
       // Encrypt + upsert user in DB
       const encrypted = encryptToken(tokenData.access_token);
-      const user      = await UserRepo.upsert(githubUser.id, githubUser.login, encrypted);
+      const user      = await UserStore.upsert(githubUser.id, githubUser.login, encrypted);
 
       // Sign a JWT session token
       const jwt = app.jwt.sign(

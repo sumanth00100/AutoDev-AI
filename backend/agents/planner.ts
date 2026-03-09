@@ -20,7 +20,6 @@ Output format – raw JSON array only, no markdown:
 export async function plannerAgent(prompt: string, githubToken: string): Promise<string[]> {
   const { content } = await complete({
     githubToken,
-    temperature: 0.3,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       { role: 'user',   content: `Project description:\n\n${prompt}` },

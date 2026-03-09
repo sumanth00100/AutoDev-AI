@@ -1,7 +1,7 @@
 import { Worker } from 'bullmq';
 import { getBullMQConnection } from './redis';
 import { QUEUE_NAME, GenerateJobData } from './producer';
-import { UserRepo } from '../database/repositories';
+import { UserStore } from '../services/redisStore';
 import { decryptToken } from '../services/crypto';
 import { runPipeline } from '../services/pipeline';
 
@@ -12,7 +12,7 @@ export function startWorker(): Worker<GenerateJobData> {
       const { requestId, prompt, targetRepo, userId, model } = job.data;
       console.log(`[Worker] Processing job ${job.id} for requestId ${requestId}`);
 
-      const user = await UserRepo.findById(userId);
+      const user = await UserStore.findById(userId);
       if (!user) throw new Error(`User ${userId} not found – cannot push to GitHub`);
 
       const githubToken = decryptToken(user.encrypted_token);

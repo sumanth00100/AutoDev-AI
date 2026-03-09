@@ -1,5 +1,5 @@
 import { FastifyInstance, FastifyRequest, FastifyReply } from 'fastify';
-import { RequestRepo } from '../../database/repositories';
+import { RequestStore } from '../../services/redisStore';
 import { enqueueGenerate } from '../../queue/producer';
 import { authenticate } from '../middleware/authenticate';
 
@@ -36,7 +36,7 @@ export async function generateRoute(app: FastifyInstance) {
       const { prompt, targetRepo, model } = req.body;
       const { userId } = req.user;
 
-      const request = await RequestRepo.create(prompt, userId);
+      const request = await RequestStore.create(prompt, userId);
       await enqueueGenerate(request.id, prompt, targetRepo, userId, model);
 
       reply.code(202).send({ requestId: request.id, status: request.status });

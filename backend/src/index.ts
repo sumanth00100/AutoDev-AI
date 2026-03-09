@@ -11,7 +11,6 @@ import { tasksRoute }     from './routes/tasks';
 import { reposRoute }     from './routes/repos';
 import { authRoute }      from './routes/auth';
 import { wsLogStream }    from './websocket/logStream';
-import { closePool }      from '../database/db';
 import { startWorker }    from '../queue/worker';
 
 const PORT = Number(process.env.PORT ?? 3001);
@@ -60,7 +59,6 @@ async function bootstrap() {
   const shutdown = async () => {
     app.log.info('Shutting down…');
     await app.close();
-    await closePool();
     process.exit(0);
   };
   process.on('SIGTERM', shutdown);

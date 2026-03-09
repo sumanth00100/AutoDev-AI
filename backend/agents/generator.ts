@@ -37,7 +37,6 @@ export async function generatorAgent(
   const { content } = await complete({
     githubToken,
     model,
-    temperature: 0.2,
     max_completion_tokens: 16000,
     messages: [
       { role: "system", content: SYSTEM_PROMPT },

@@ -13,7 +13,6 @@ export interface CompletionOptions {
   githubToken: string; // user's decrypted GitHub OAuth token
   model?: string;
   messages: Message[];
-  temperature?: number;
   max_completion_tokens?: number;
 }
 
@@ -38,7 +37,6 @@ export async function complete(
     body: JSON.stringify({
       model,
       messages: opts.messages,
-      temperature: opts.temperature,
       max_completion_tokens: opts.max_completion_tokens,
     }),
   });
