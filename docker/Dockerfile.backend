@@ -2,7 +2,7 @@
 FROM node:20-alpine AS builder
 
 # Cache bust: increment when you need a full rebuild
-ARG CACHE_BUST=7
+ARG CACHE_BUST=8
 RUN echo "Cache bust: $CACHE_BUST"
 
 WORKDIR /app
