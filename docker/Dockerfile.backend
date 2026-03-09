@@ -16,9 +16,6 @@ FROM node:20-alpine AS runner
 
 WORKDIR /app
 
-# Install Docker CLI (needed by dockerRunner to spawn sandbox containers)
-RUN apk add --no-cache docker-cli
-
 ENV NODE_ENV=production
 
 COPY --from=builder /app/package*.json ./
