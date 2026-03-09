@@ -14,6 +14,7 @@ import { wsLogStream }    from './websocket/logStream';
 import { startWorker }    from '../queue/worker';
 
 const PORT = Number(process.env.PORT ?? 3001);
+console.log(`[Startup] PORT=${PORT} NODE_ENV=${process.env.NODE_ENV} REDIS_URL=${process.env.REDIS_URL ? 'set' : 'NOT SET'}`);
 
 async function bootstrap() {
   const app = Fastify({
