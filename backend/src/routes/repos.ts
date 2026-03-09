@@ -80,7 +80,7 @@ ${content}`;
           { role: 'user', content: context },
         ],
         temperature: 0.3,
-        max_tokens:  200,
+        max_completion_tokens:  200,
       });
 
       reply.send({ description: result.content.trim() });

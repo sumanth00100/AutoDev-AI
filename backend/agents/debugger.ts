@@ -44,7 +44,7 @@ export async function debuggerAgent(
   const { content } = await complete({
     githubToken,
     temperature: 0.1,
-    max_tokens:  8192,
+    max_completion_tokens:  8192,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       {

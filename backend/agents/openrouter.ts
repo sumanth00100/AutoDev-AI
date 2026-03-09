@@ -14,7 +14,7 @@ export interface CompletionOptions {
   model?:      string;
   messages:    Message[];
   temperature?: number;
-  max_tokens?:  number;
+  max_completion_tokens?:  number;
 }
 
 export interface CompletionResult {
@@ -37,7 +37,7 @@ export async function complete(opts: CompletionOptions): Promise<CompletionResul
       model,
       messages:    opts.messages,
       temperature: opts.temperature,
-      max_tokens:  opts.max_tokens,
+      max_completion_tokens:  opts.max_completion_tokens,
     }),
   });
 

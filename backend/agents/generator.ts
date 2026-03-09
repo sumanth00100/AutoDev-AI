@@ -38,7 +38,7 @@ export async function generatorAgent(
     githubToken,
     model,
     temperature: 0.2,
-    max_tokens:  16000,
+    max_completion_tokens:  16000,
     messages: [
       { role: 'system', content: SYSTEM_PROMPT },
       {
