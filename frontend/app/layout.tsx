@@ -3,13 +3,19 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'AutoEngineer – Autonomous AI Software Engineer',
-  description: 'Describe a project, let AI plan, generate, debug, and ship it.',
+  description: 'Describe a project, let AI plan, generate, and ship it to GitHub automatically.',
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col antialiased">{children}</body>
+      <body className="min-h-screen flex flex-col antialiased relative">
+        {/* Mesh gradient blobs */}
+        <div className="mesh-bg" aria-hidden="true" />
+        {/* Film grain overlay */}
+        <div className="noise-overlay" aria-hidden="true" />
+        <div className="relative z-10 flex flex-col flex-1">{children}</div>
+      </body>
     </html>
   );
 }
