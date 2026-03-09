@@ -1,6 +1,10 @@
 # ── Stage 1: build ──────────────────────────────────────────────────────────
 FROM node:20-alpine AS builder
 
+# Cache bust: increment when you need a full rebuild
+ARG CACHE_BUST=3
+RUN echo "Cache bust: $CACHE_BUST"
+
 WORKDIR /app
 
 # Install dependencies first (cache layer)
