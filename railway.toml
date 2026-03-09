@@ -3,7 +3,7 @@ builder = "NIXPACKS"
 buildCommand = "cd backend && npm ci && npm run build"
 
 [deploy]
-startCommand = "node backend/dist/src/index.js"
+startCommand = "node dist/src/index.js"
 healthcheckPath = "/health"
 healthcheckTimeout = 30
 restartPolicyType = "ON_FAILURE"
