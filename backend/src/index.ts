@@ -49,10 +49,14 @@ async function bootstrap() {
   app.get('/health', async () => ({ status: 'ok', ts: new Date().toISOString() }));
 
   // ── Background worker ──────────────────────────────────────────────────────
-  try {
-    startWorker();
-  } catch (err) {
-    app.log.error({ err }, 'Worker failed to start — REDIS_URL may be missing');
+  if (process.env.REDIS_URL) {
+    try {
+      startWorker();
+    } catch (err) {
+      app.log.error({ err }, 'Worker failed to start');
+    }
+  } else {
+    app.log.warn('REDIS_URL not set — background worker disabled');
   }
 
   // ── Start ──────────────────────────────────────────────────────────────────
