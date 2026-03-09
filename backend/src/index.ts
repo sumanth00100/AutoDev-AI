@@ -49,7 +49,11 @@ async function bootstrap() {
   app.get('/health', async () => ({ status: 'ok', ts: new Date().toISOString() }));
 
   // ── Background worker ──────────────────────────────────────────────────────
-  startWorker();
+  try {
+    startWorker();
+  } catch (err) {
+    app.log.error({ err }, 'Worker failed to start — REDIS_URL may be missing');
+  }
 
   // ── Start ──────────────────────────────────────────────────────────────────
   await app.listen({ port: PORT, host: '0.0.0.0' });
