@@ -74,8 +74,8 @@ export function TaskList({ requestId }: { requestId: string }) {
             className="h-full rounded-full transition-all duration-700 ease-out"
             style={{
               width: `${pct}%`,
-              background: 'linear-gradient(90deg, #6366f1, #8b5cf6)',
-              boxShadow: '0 0 8px rgba(99,102,241,0.6)',
+              background: 'linear-gradient(90deg, #3b6fef, #4a7fff)',
+              boxShadow: '0 0 8px rgba(74,127,255,0.5)',
             }}
           />
         </div>
@@ -95,7 +95,7 @@ export function TaskList({ requestId }: { requestId: string }) {
               className={clsx(
                 'flex gap-3 items-start p-2.5 rounded-xl border text-xs transition-all duration-300',
                 task.status === 'running'   && 'border-brand/25 bg-brand/[0.05]',
-                task.status === 'completed' && 'border-transparent opacity-40',
+                task.status === 'completed' && 'border-emerald-500/15 bg-emerald-500/[0.03]',
                 task.status === 'failed'    && 'border-red-500/25 bg-red-500/[0.05]',
                 task.status === 'pending'   && 'border-transparent',
               )}
@@ -111,7 +111,7 @@ export function TaskList({ requestId }: { requestId: string }) {
               <span className={clsx('leading-[1.5]', {
                 'text-[var(--text-3)]':                    task.status === 'pending',
                 'text-[var(--text-1)] font-medium':        task.status === 'running',
-                'text-[var(--text-3)] line-through':       task.status === 'completed',
+                'text-[var(--text-2)]':                    task.status === 'completed',
                 'text-red-400':                            task.status === 'failed',
               })}>
                 <span className="font-mono text-[var(--text-3)] opacity-50 mr-1.5">{i + 1}.</span>

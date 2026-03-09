@@ -9,18 +9,8 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body className="min-h-screen flex flex-col antialiased relative bg-[#03030f]">
-        {/* Ambient gradient orbs */}
-        <div className="orb-container" aria-hidden="true">
-          <div className="orb orb-1" />
-          <div className="orb orb-2" />
-          <div className="orb orb-3" />
-        </div>
-        {/* Subtle dot grid */}
-        <div className="dot-grid" aria-hidden="true" />
-        {/* Film grain texture */}
-        <div className="grain" aria-hidden="true" />
-        <div className="relative z-10 flex flex-col flex-1">{children}</div>
+      <body className="min-h-screen flex flex-col antialiased bg-[#1c1917]">
+        {children}
       </body>
     </html>
   );

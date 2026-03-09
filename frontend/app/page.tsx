@@ -106,16 +106,16 @@ export default function HomePage() {
           <Tilt3D className="relative inline-flex items-center justify-center" intensity={12}>
             {/* Outer spinning gradient ring */}
             <div className="absolute w-32 h-32 rounded-full animate-ring-slow"
-              style={{ background: 'conic-gradient(from 0deg, transparent 65%, rgba(99,102,241,0.8) 80%, rgba(139,92,246,0.6) 90%, transparent 100%)' }}
+              style={{ background: 'conic-gradient(from 0deg, transparent 65%, rgba(74,127,255,0.8) 80%, rgba(147,180,255,0.6) 90%, transparent 100%)' }}
             />
             {/* Inner counter-spinning ring */}
             <div className="absolute w-24 h-24 rounded-full animate-ring-reverse"
-              style={{ background: 'conic-gradient(from 180deg, transparent 70%, rgba(34,211,238,0.5) 85%, transparent 100%)' }}
+              style={{ background: 'conic-gradient(from 180deg, transparent 70%, rgba(59,111,239,0.5) 85%, transparent 100%)' }}
             />
             {/* Core */}
             <div className="relative w-20 h-20 rounded-2xl gradient-border flex items-center justify-center"
-              style={{ boxShadow: '0 0 40px rgba(99,102,241,0.3), 0 0 80px rgba(99,102,241,0.12), inset 0 1px 0 rgba(255,255,255,0.12)' }}>
-              <svg className="w-9 h-9" style={{ color: '#a5b4fc' }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
+              style={{ boxShadow: '0 0 40px rgba(74,127,255,0.3), 0 0 80px rgba(74,127,255,0.12), inset 0 1px 0 rgba(255,255,255,0.1)' }}>
+              <svg className="w-9 h-9" style={{ color: '#93b4ff' }} fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
               </svg>
             </div>
@@ -181,7 +181,7 @@ export default function HomePage() {
         <div className="flex items-center gap-3">
           <div className="relative w-9 h-9">
             <div className="absolute inset-0 rounded-xl gradient-border flex items-center justify-center"
-              style={{ boxShadow: '0 0 16px rgba(99,102,241,0.25)' }}>
+              style={{ boxShadow: '0 0 16px rgba(74,127,255,0.22)' }}>
               <svg className="w-4.5 h-4.5 text-[var(--brand-light)]" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />
               </svg>
@@ -281,7 +281,7 @@ export default function HomePage() {
                 <div className="relative w-16 h-16">
                   {/* Spinning ring */}
                   <div className="absolute inset-0 rounded-2xl animate-ring-slow"
-                    style={{ background: 'conic-gradient(from 0deg, transparent 60%, rgba(99,102,241,0.6) 80%, transparent 100%)' }} />
+                    style={{ background: 'conic-gradient(from 0deg, transparent 60%, rgba(74,127,255,0.6) 80%, transparent 100%)' }} />
                   <div className="absolute inset-[3px] rounded-xl glass-card flex items-center justify-center">
                     <svg className="w-7 h-7 text-[var(--text-2)]" fill="none" stroke="currentColor" strokeWidth={1.5} viewBox="0 0 24 24">
                       <path strokeLinecap="round" strokeLinejoin="round" d="M17.25 6.75 22.5 12l-5.25 5.25m-10.5 0L1.5 12l5.25-5.25m7.5-3-4.5 16.5" />

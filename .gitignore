@@ -8,9 +8,15 @@ dist/
 **/dist/
 **/.next/
 
-# Environment
+# Environment – never commit real secrets
 .env
+.env.local
+.env.production
+.env.staging
 **/.env
+**/.env.local
+**/.env.production
+**/.env.staging
 
 # Logs
 *.log
