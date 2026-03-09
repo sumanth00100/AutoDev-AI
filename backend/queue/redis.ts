@@ -4,7 +4,7 @@ let client: Redis | null = null;
 
 export function getRedis(): Redis {
   if (!client) {
-    client = new Redis(process.env.REDIS_URL ?? 'redis://localhost:6379', {
+    client = new Redis(process.env.REDIS_URL || 'redis://localhost:6379', {
       maxRetriesPerRequest: null,
       lazyConnect: true,
     });
@@ -15,7 +15,7 @@ export function getRedis(): Redis {
 
 /** Plain connection config for BullMQ (avoids ioredis version conflicts). */
 export function getBullMQConnection() {
-  const raw = process.env.REDIS_URL ?? 'redis://localhost:6379';
+  const raw = process.env.REDIS_URL || 'redis://localhost:6379';
   const url  = new URL(raw);
   const tls  = raw.startsWith('rediss://');
   return {
